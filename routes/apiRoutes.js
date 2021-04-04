@@ -1,28 +1,45 @@
 const router = require('express').Router();
-const db = require('../models');
-const Workout = require('../models/Workout');
-const mongoose = require('mongoose');
+const Workout = require('../models/workout');
 
-// get all workouts
 router.get('/api/workouts', (req, res) => {
-    db.Workout.find({})
+    Workout.aggregate([
+        {
+            $addFields: {
+                totalDuration: {
+                    $sum: '$exercises.duration'
+                }
+            }
+        }
+    ])
         .then(workoutdb => {
             res.json(workoutdb);
         })
         .catch(err => {
             res.status(400).json(err);
-        });
+        })
 });
 
-// get workout range page
-router.get('/api/workouts/range', (req, res) => {
-    db.Workout.find({})
-        .then(workoutdb => {
-            res.json(workoutdb);
+router.get("/api/workouts/range", (req, res) => {
+    Workout.aggregate([
+        {
+            $addFields: {
+                totalDuration: {
+                    $sum: '$exercises.duration'
+                },
+            }
+        },
+        {
+            $sort: {
+                _id: -1
+            }
+        },
+    ])
+        .then(dbWorkout => {
+            res.json(dbWorkout);
         })
         .catch(err => {
-            res.status(400).json(err);
-        });
+            res.json(err)
+        })
 });
 
 router.put('/api/workouts/:id', (req, res) => {
@@ -31,23 +48,43 @@ router.put('/api/workouts/:id', (req, res) => {
             exercises: req.body,
         }
     })
-    .then(workoutdb => {
-        res.json(workoutdb);
-    })
-    .catch(err => {
-        res.status(400).json(err);
-    });
+        .then(workoutdb => {
+            res.json(workoutdb);
+        })
+        .catch(err => {
+            res.status(400).json(err);
+        });
 });
 
-// create new workout
 router.post('/api/workouts', ({ body }, res) => {
-    db.Workout.create(body)
+    Workout.create(
+        {
+            day: Date.now()
+        },
+        {
+            $set: {
+                title: req.body.title,
+                exercise: req.body.exercise,
+                modified: Date.now()
+            }
+        }
+    )
         .then(workoutdb => {
             res.json(workoutdb);
         })
         .catch(err => {
             res.status(400).json(err);
         })
+});
+
+router.post('/submit', ({ body }, res) => {
+    User.create(body)
+        .then(dbUser => {
+            res.json(dbUser);
+        })
+        .catch(err => {
+            res.json(err);
+        });
 });
 
 module.exports = router;
