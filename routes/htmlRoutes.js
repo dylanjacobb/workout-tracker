@@ -1,7 +1,19 @@
 const router = require('express').Router();
-// add a .js?
-const WorkoutInfo = require('../models/workout-info');
+const path = require('path');
 
-router.post('/exercise', ({ body }, res) => {
+// gets the main page
+router.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
-})
+// get the exercise page
+router.get('/exercise', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/exercise.html'));
+});
+
+// get the stats page
+router.get('/stats', (req, res) => {
+    res.sendFile(path.join(__dirname, ('../public/stats.html')));
+});
+
+module.exports = router;
