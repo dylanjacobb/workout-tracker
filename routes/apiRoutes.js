@@ -3,7 +3,6 @@ const db = require('../models');
 const Workout = require('../models/Workout');
 const mongoose = require('mongoose');
 
-
 // FIXME: add the aggregates
 
 // get all workouts
